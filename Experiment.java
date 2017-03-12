@@ -2,13 +2,13 @@
  * Created by admin on 03-02-2017.
  */
 @SuppressWarnings("DefaultFileTemplate")
-public class Solver {
+public class Experiment {
     private int[][] board=new int[9][9];
     int i,j;
     int boxer_x,boxer_y;
     int count=0;
     Boolean backtrack=true;
-    private Solver(int[][] board)
+    private Experiment(int[][] board)
     {
         this.board=board;
     }
@@ -54,42 +54,66 @@ public class Solver {
         }
         return flag != 1;
     }
-    private void sudokuSolver() {
-        int r,c;
-        int alpha=0;
-
-        while(!isFull())
-        {
-            if(backtrack) {
-                r = 0;
-                c= 0;
-                backtrack=false;
-            } else {
-                if(j==8)
-                    r = i+1;
-                else
-                    r=i;
-                c = (j+1)%9;
-            }
-            Loop:
-            for (int x = r; x < 9; x++) {
-                for (int y = c; y < 9; y++)
-                    if (board[x][y] == 0) {
-                        i = x;
-                        j = y;
-                        System.out.print(i+":"+j);
-                        break Loop;
+    public boolean solver(int[][] board) {
+        for (int r = 0; r < board.length; r++) {
+            for (int c = 0; c < board[0].length; c++) {
+                if (board[r][c] == 0) {
+                    for (int k = 1; k <= 9; k++) {
+                        board[r][c] = k;
+                        if (isValid(board, r, c) && solver(board)) {
+                            return true;
+                        } else {
+                            board[r][c] = 0;
+                        }
                     }
+                    return false;
+                }
             }
-            board[i][j] = possibleEntries();
         }
-        if (isFull())
-        {
-            System.out.print("Board Solved Successfully!");
-            printBoard();
-        }
+        return true;
     }
 
+    public boolean isValid(int[][] board, int r, int c) {
+        //check row
+        boolean[] row = new boolean[9];
+        for (int i = 0; i < 9; i++) {
+            if (board[r][i] >= 1 && board[r][i] <= 9) {
+                if (row[board[r][i] - 1] == false) {
+                    row[board[r][i] - 1] = true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        //check column
+        boolean[] col = new boolean[9];
+        for (int i = 0; i < 9; i++) {
+            if (board[i][c] >= 1 && board[i][c] <= 9) {
+                if (col[board[i][c] - 1] == false) {
+                    col[board[i][c] - 1] = true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        //check the 3*3 grid
+        boolean[] grid = new boolean[9];
+        for (int i = (r / 3) * 3; i < (r / 3) * 3 + 3; i++) {
+            for (int j = (c / 3) * 3; j < (c / 3) * 3 + 3; j++) {
+                if (board[i][j] >= 1 && board[i][j] <= 9) {
+                    if (grid[board[i][j] - 1] == false) {
+                        grid[board[i][j] - 1] = true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
     private int possibleEntries()
     {
         String possibility="";
@@ -264,8 +288,8 @@ public class Solver {
         SudokuBoard[8][6] = 0;
         SudokuBoard[8][7] = 0;
         SudokuBoard[8][8] = 0;
-        Solver me = new Solver(SudokuBoard);
+        Experiment me = new Experiment(SudokuBoard);
         me.printBoard();
-        me.sudokuSolver();
+        me.solver(SudokuBoard);
     }
 }
